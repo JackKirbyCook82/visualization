@@ -7,6 +7,8 @@ Created on Sat Jul 20 2019
 """
 
 import numpy as np
+import pandas as pd
+import geopandas as gp
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 from IPython.core.display import display
@@ -36,7 +38,8 @@ def createplot(x, y):
 def createax(fig, *args, axsize=(1,1), projection=None, **kwargs):
     assert isinstance(axsize, tuple)
     assert len(axsize) == 2
-    ax = fig.add_subplot(*axsize, len(fig.axes)+1, projection=projection.lower())
+    projection = projection.lower() if projection else projection
+    ax = fig.add_subplot(*axsize, len(fig.axes)+1, projection=projection)
     return ax
 
 
@@ -48,6 +51,7 @@ def setnames(ax, title=None, **names):
     for axiskey, axisname in names.items(): 
         if axiskey in axisnames.keys(): axisnames[axiskey](axisname)  
     
+    
 def setticks(ax, **ticks):
     function = lambda num: np.arange(0, num, 1)
     axisticks = dict(x = lambda num: ax.set_xticks(function(num)), 
@@ -55,6 +59,7 @@ def setticks(ax, **ticks):
                      z = lambda num: ax.set_zticks(function(num))) 
     for axiskey, axislen in ticks.items(): 
         if axiskey in axisticks.keys(): axisticks[axiskey](axislen)
+
 
 def setlabels(ax, **labels):
     axislabels = dict(x = lambda xlabels: ax.set_xticklabels(xlabels, minor=False), 
@@ -65,6 +70,16 @@ def setlabels(ax, **labels):
         
 
 # PLOTS
+def mapplot(ax, data, *args, geodata, alpha=0.5, **kwargs):
+    assert isinstance(geodata, gp.GeoDataFrame)
+    assert isinstance(data, pd.Series)
+    assert all([item.index.name == 'geography' for item in (data, geodata)])   
+    geomap = geodata.merge(data, on='geography')
+    assert not geomap.isnull().values.any()
+    ax.set_aspect('equal')
+    geomap.plot(ax=ax, legend=True, alpha=alpha)
+    
+        
 def violinplot(ax, data, *args, showmeans=True, showmedians=False, showextrema=True, **kwargs):
     assert isinstance(data, list)
     assert all([isinstance(item, np.ndarray) for item in data])
