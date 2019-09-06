@@ -34,4 +34,4 @@ def set_options(**kwargs):
 def get_option(key): return _OPTIONS[key]
 def show_options(): 
     optionstrings = json.dumps({key:str(value) for key, value in _OPTIONS.items()}, sort_keys=True, indent=3, separators=(',', ' : '))
-    print('Visualization Options:\n{}\n'.format(optionstrings))
+    print('Visualization Options {}\n'.format(optionstrings))
