@@ -11,6 +11,7 @@ from functools import reduce
 import matplotlib.pyplot as plt
 from IPython.core.display import display
 
+from utilities.strings import uppercase
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
@@ -29,10 +30,11 @@ def zticks(ax): return ax.get_zticks()
 
 
 # FACTORY
-def createplot(size=(8,8), layout=(1,1)):
+def createplot(size=(8,8), layout=(1,1), title=None):
     assert all([isinstance(item, tuple) for item in (size, layout)])
     assert all([len(item) == 2 for item in (size, layout)])
     fig = plt.figure(figsize=size)
+    fig.suptitle(uppercase(title, withops=True))
     setattr(fig, 'layout', layout)
     return fig
 
@@ -45,10 +47,10 @@ def createax(fig, *args, projection=None, **kwargs):
 
 
 def setnames(ax, title=None, **names):
-    axisnames = dict(x = lambda name: ax.set_xlabel(name.upper()), 
-                     y = lambda name: ax.set_ylabel(name.upper()), 
-                     z = lambda name: ax.set_zlabel(name.upper()))    
-    if title: ax.set_title(title.upper())
+    axisnames = dict(x = lambda name: ax.set_xlabel(uppercase(name, withops=True)), 
+                     y = lambda name: ax.set_ylabel(uppercase(name, withops=True)), 
+                     z = lambda name: ax.set_zlabel(uppercase(name, withops=True)))  
+    if title: ax.set_title(uppercase(title, withops=True))
     for axiskey, axisname in names.items(): 
         if axiskey in axisnames.keys(): axisnames[axiskey](axisname)  
     

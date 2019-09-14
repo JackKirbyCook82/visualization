@@ -17,8 +17,8 @@ __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
 
-_OPTIONS = {'fontsize':8}
-_MPLMAPPING = {"fontsize":"font.size"}
+_OPTIONS = {'axisfontsize':8, 'legendfontsize':8, 'titlefontsize':12}
+_MPLMAPPING = {"axisfontsize":"font.size", "legendfontsize":"legend.fontsize", "titlefontsize":"figure.titlesize"}
 
 
 def apply_options():

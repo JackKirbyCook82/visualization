@@ -39,7 +39,7 @@ def violinplot(ax, data, *args, showmeans=True, showmedians=False, showextrema=T
     ax.violinplot(data, showmeans=showmeans, showmedians=showmedians, showextrema=showextrema)
 
 
-def barplot(ax, data, *args, size=1, **kwargs):
+def barplot(ax, data, *args, size=0.8, **kwargs):
     assert isinstance(data, np.ndarray)
     assert data.ndim == 1    
     assert isinstance(size, float)
@@ -64,7 +64,7 @@ def scatterplot(ax, data, *args, marker='•', **kwargs):
     ax.scatter(*data, marker=marker)
     
 
-def bar3Dplot(ax, data, *args, size=(1,1), offset=(0,0), shade=True, alpha=0.5, **kwargs):
+def bar3Dplot(ax, data, *args, size=(0.8,0.8), offset=(0,0), shade=True, alpha=0.5, **kwargs):
     assert isinstance(data, np.ndarray)
     assert data.ndim == 2        
     assert isinstance(size, tuple)
