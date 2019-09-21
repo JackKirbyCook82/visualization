@@ -22,14 +22,17 @@ _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else lis
 
 
 # PLOTS
-def mapplot(ax, data, *args, geodata, alpha=0.5, **kwargs):
-    assert isinstance(geodata, gp.GeoDataFrame)
+def mapplot(ax, data, *args, geo, base, alpha=0.5, border=False, **kwargs):
+    assert isinstance(geo, gp.GeoDataFrame)
+    assert isinstance(base, gp.GeoDataFrame)
     assert isinstance(data, pd.Series)
-    assert all([item.index.name == 'geography' for item in (data, geodata)])   
-    geomap = geodata.merge(data, on='geography')    
+    assert all([item.index.name == 'geography' for item in (data, geo)])  
+    basemap = base
+    geomap = geo.merge(data, on='geography')   
     assert not geomap.isnull().values.any()
     ax.set_aspect('equal')
-    geomap.plot(ax=ax, column=data.name, alpha=alpha)
+    basemap.plot(ax=ax, color='white', edgecolor='black')
+    geomap.plot(ax=ax, column=data.name, alpha=alpha, edgecolor='black' if border else None)
     
            
 def violinplot(ax, data, *args, showmeans=True, showmedians=False, showextrema=True, **kwargs):
