@@ -9,6 +9,8 @@ Created on Sat Jul 20 2019
 import numpy as np
 from functools import reduce
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib import cm
 from IPython.core.display import display
 
 from utilities.strings import uppercase
@@ -19,9 +21,20 @@ __all__ = ['createplot', 'createax', 'setnames', 'setticks', 'setlabels', 'showp
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
+_MAPCOLOR = 'YlGn'
+_ROADCOLOR = 'DarkRed'
+_WATERCOLOR = 'DarkBlue'
+
 
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
 
+def config(*args, mapcolor=_MAPCOLOR, roadcolor=_ROADCOLOR, watercolor=_WATERCOLOR, **kwargs):
+    global _MAPCOLOR
+    global _ROADCOLOR
+    global _WATERCOLOR
+    _MAPCOLOR, _ROADCOLOR, _WATERCOLOR = mapcolor, roadcolor, watercolor 
+    
+    
 def showplot(fig): display(fig)
 
 def xticks(ax): return ax.get_xticks()
@@ -44,8 +57,22 @@ def createax(fig, *args, projection=None, **kwargs):
     projection = projection.lower() if projection else projection
     ax = fig.add_subplot(*fig.layout, len(fig.axes)+1, projection=projection)
     return ax
+  
 
-
+def addcolorbar(fig, colorrange, *args, orientation='horizontal', **kwargs):
+    mincolor, maxcolor = colorrange
+    norm = Normalize(vmin=mincolor, vmax=maxcolor)
+    ncmap = cm.ScalarMappable(norm=norm, cmap=_MAPCOLOR)
+    if orientation == 'vertical':
+        fig.subplots_adjust(right=0.85, wspace=0.25, hspace=0.25)    
+        cbarax = fig.add_axes([0.9, 0.12, 0.02, 0.74])      
+    elif orientation == 'horizontal':
+        fig.subplots_adjust(bottom=0.1, wspace=0.25, hspace=0.25)    
+        cbarax = fig.add_axes([0.1, 0.05, 0.8, 0.02]) 
+    else: raise ValueError(orientation)
+    fig.colorbar(ncmap, cax=cbarax, orientation=orientation)   
+    
+      
 def setnames(ax, title=None, **names):
     axisnames = dict(x = lambda name: ax.set_xlabel(uppercase(name, withops=True)), 
                      y = lambda name: ax.set_ylabel(uppercase(name, withops=True)), 
