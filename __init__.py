@@ -10,24 +10,23 @@ import json
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import axes3d
 
-import visualization.figures
-import visualization.plots
+import visualization.figures as figures
+import visualization.plots as plots
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
-__all__ = ['set_options', 'get_option', 'show_options']
+__all__ = ['set_options', 'get_option', 'show_options', 'figures', 'plots']
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
 
-_OPTIONS = {'axisfontsize':8, 'legendfontsize':8, 'titlefontsize':12, 'mapcolor':'YlGn', 'roadcolor':'DarkRed', 'watercolor':'DarkBlue'}
+_OPTIONS = {'axisfontsize':8, 'legendfontsize':8, 'titlefontsize':12}
 _MPLMAPPING = {"axisfontsize":"font.size", "legendfontsize":"legend.fontsize", "titlefontsize":"figure.titlesize"}
 
 
 def apply_options():
     for key, value in _MPLMAPPING.items(): mpl.rcParams[value] = _OPTIONS[key] 
-    visualization.figures.config(mapcolor=_OPTIONS['mapcolor'], roadcolor=_OPTIONS['roadcolor'], watercolor=_OPTIONS['watercolor'])
-    visualization.plots.config(mapcolor=_OPTIONS['mapcolor'], roadcolor=_OPTIONS['roadcolor'], watercolor=_OPTIONS['watercolor'])
+
 
 def set_options(**kwargs):
     global _OPTIONS
