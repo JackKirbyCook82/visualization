@@ -15,19 +15,17 @@ from IPython.core.display import display
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
-__all__ = ['createplot', 'createax', 'setnames', 'setlabels', 'showplot', 'addcolorbar', 'xticks', 'yticks', 'zticks']
+__all__ = ['createplot', 'createax', 'setnames', 'setlabels', 'showplot', 'addcolorbar']
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
+
+_DEFAULTCOLOR = 'Y1Gn'
 
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
 
 
 def showplot(fig): display(fig)
-
-def xticks(ax): return ax.get_xticks()
-def yticks(ax): return ax.get_yticks() 
-def zticks(ax): return ax.get_zticks()
 
 
 # FACTORY
@@ -47,7 +45,7 @@ def createax(fig, *args, projection=None, **kwargs):
     return ax
   
 
-def addcolorbar(fig, colorrange, *args, orientation='horizontal', color, **kwargs):
+def addcolorbar(fig, colorrange, *args, orientation='horizontal', color=_DEFAULTCOLOR, **kwargs):
     mincolor, maxcolor = colorrange
     norm = Normalize(vmin=mincolor, vmax=maxcolor)
     ncmap = cm.ScalarMappable(norm=norm, cmap=color)

@@ -13,11 +13,12 @@ import matplotlib.pyplot as plt
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
-__all__ = ['map_plot', 'dist_hbar_plot']
+__all__ = ['map_plot']
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
-_BARCOLORS = 'Y1Gn'
+
+_DEFAULTCOLOR = 'Y1Gn'
 _MAPCOLORS = {'roads':'DarkRed', 'water':'DarkBlue', 'map':'YlGn'}
 
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
@@ -25,13 +26,15 @@ _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else lis
 
 # PLOTS
 def map_plot(ax, data, *args, geo, base, roads=None, water=None, colors={}, **kwargs):
-    colors = {key:colors.get(key, value) for key, value in _MAPCOLORS.items()}
+    assert isinstance(data, pd.Series)  
     assert isinstance(geo, gp.GeoDataFrame)
     assert isinstance(base, gp.GeoDataFrame)
-    assert isinstance(data, pd.Series)
+    if roads: assert isinstance(roads, gp.GeoDataFrame)
+    if water: assert isinstance(water, gp.GeoDataFrame)
     assert all([item.index.name == 'geography' for item in (data, geo)])  
-    basemap = base
-    geomap = geo.merge(data, on='geography')   
+    colors = {key:colors.get(key, value) for key, value in _MAPCOLORS.items()}
+    
+    geomap, basemap = geo.merge(data, on='geography'), base   
     assert not geomap.isnull().values.any()
     ax.set_aspect('equal')
     basemap.plot(ax=ax, color='white', edgecolor='black')
@@ -41,48 +44,74 @@ def map_plot(ax, data, *args, geo, base, roads=None, water=None, colors={}, **kw
     if water: water.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=colors['water'])
     ax.set_xlim(xlimit)
     ax.set_ylim(ylimit)
-
-           
-#def lineplot(ax, x, y, legend, *args, **kwargs): 
-#    assert all([isinstance(item, np.ndarray) for item in (x, y)])
-#    ax.plot(x, y, label=legend)
-
-
-#def scatterplot(ax, x, y, s, legend, *args, **kwargs):
-#    assert all([isinstance(item, np.ndarray) for item in (x, y, s)])
-#    ax.scatter(x, y, s=s, alpha=0.5, label=legend)
  
+ 
+#def scatter_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+#    assert isinstance(data, pd.Dataframe)
+#    indexnames = list(data.index.names)
+#    columns = list(data.columns.values)
+#
+#    assert len(indexnames) == 2 or len(indexnames) == 3    
+#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(columns))) 
+#    
+#    for column, colcolor in zip(columns, colors):
+#        coldata = data[column]
+#        for indexname in indexnames: coldata = coldata.unstack(level=indexname)
+#        ax.scatter(*[coldata[indexname].to_numpy() for indexname in indexnames], s=coldata.to_numpy(), alpha=0.5, color=colcolor, label=column)     
+#    ax.grid(True)
+
+
+#def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+#    assert isinstance(data, pd.Dataframe)
+#    indexnames = list(data.index.names)
+#    columns = list(data.columns.values)
+#
+#    data = data.to_numpy()    
+#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(index))) 
+#    
+#    for i, (label, label_color) in enumerate(columns, colors):
+#        weights = data[i, :]
+#        ax.hist(index, weights=weights, label=label, color=label_color)
+
+
+#def dist_vbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+#    assert isinstance(data, pd.Series)
+#    assert len(data.index.names) == 2
+#    data = data.unstack()
+#    index, columns = list(data.index.values), list(data.columns.values)
+#    data = data.to_numpy()
+#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(index))) 
+#
+#    space = 0.2
+#    width = (1 - space) / (len(index) * len(columns)) 
+#    for i, (label, label_color) in enumerate(columns, colors):
+#        hieght = data[i, :]
+#        positions = np.arange(len(index)) - (width / len(columns))
+#        ax.bar(positions, hieght, width, label=label, color=label_color)
     
-def scatter_plot(ax, data, legend, *args, color, **kwargs):
-    assert isinstance(data, pd.Series)
-    axesnames = data.index.names
-    dataname = data.name
-    assert len(axesnames) == 2 or len(axesnames) == 3
-    for axisname in axesnames: data = data.unstack(level=axisname)
-    ax.scatter(*[data[axisname].to_numpy() for axisname in axesnames], s=data[dataname].to_numpy(), alpha=0.5, label=legend)
-    ax.grid(True)
-    
-    
-def dist_hbar_plot(ax, data, *args, **kwargs):
-    assert isinstance(data, pd.DataFrame)
-    index, columns = list(data.index.values), list(data.columns)
-    data = data.to_numpy()
-    cumdata = data.cumsum(axis=1)
-    
-    ax.invert_yaxis()
-    ax.xaxis.set_visible(False)
-    ax.set_xlim(0, np.sum(data, axis=1).max())
-    
-    colors = plt.get_cmap(_BARCOLORS)(np.linspace(0.15, 0.85, data.shape[1])) 
-    for index, (category, color) in enumerate(index, colors):
-        widths = data[:, index]
-        starts = cumdata[:, index] - widths
-        ax.barh(columns, widths, left=starts, height=0.5, label=index, color=color)
-        
-        centers = starts + widths / 2
-        for y, (x, c) in enumerate(zip(centers, widths)): ax.text(x, y, str(int(c)), ha='center', va='center')        
-    ax.legend(ncol=len(x), box_to_anchor=(0,1), loc='lower left')
-        
+
+#def dist_hbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+#    assert isinstance(data, pd.Series)
+#    assert len(data.index.names) == 2
+#    data = data.unstack()
+#    index, columns = list(data.index.values), list(data.columns.values)
+#    data = data.to_numpy()
+#    cumdata = data.cumsum(axis=1)
+#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(index))) 
+#    
+#    ax.invert_yaxis()
+#    ax.xaxis.set_visible(False)
+#    ax.set_xlim(0, np.sum(data.to_numpy(), axis=1).max())
+#       
+#    for i, (label, label_color) in enumerate(columns, colors):
+#        widths = data[i, :]
+#        starts = cumdata[i, :] - widths
+#        ax.barh(index, widths, left=starts, height=0.5, label=label, color=label_color)
+#        
+#        centers = starts + widths / 2
+#        for y, (x, c) in enumerate(zip(centers, widths)): ax.text(x, y, str(int(c)), ha='center', va='center')        
+#    ax.legend(ncol=len(x), box_to_anchor=(0,1), loc='lower left')       
+
 
 #def bar3Dplot(ax, data, *args, size=(0.8,0.8), offset=(0,0), **kwargs):
 #    assert isinstance(data, np.ndarray)
