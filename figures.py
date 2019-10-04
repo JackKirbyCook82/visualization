@@ -20,8 +20,6 @@ __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
 
-_DEFAULTCOLOR = 'Y1Gn'
-
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
 
 
@@ -45,7 +43,7 @@ def createax(fig, *args, projection=None, **kwargs):
     return ax
   
 
-def addcolorbar(fig, colorrange, *args, orientation='horizontal', color=_DEFAULTCOLOR, **kwargs):
+def addcolorbar(fig, colorrange, *args, orientation='horizontal', color, **kwargs):
     mincolor, maxcolor = colorrange
     norm = Normalize(vmin=mincolor, vmax=maxcolor)
     ncmap = cm.ScalarMappable(norm=norm, cmap=color)
@@ -69,9 +67,9 @@ def setnames(ax, *args, title=None, names={}, **kwargs):
     
    
 def setlabels(ax, *args, labels={}, rotations={}, **kwargs):  
-    labels = {axis:labels.get(axis, None) for axis in ('x', 'y ', 'z')}
-    rotations = {axis:rotations.get(axis, None) for axis in ('x', 'y ', 'z')}
-    
+    labels = {axis:labels.get(axis, None) for axis in ('x', 'y', 'z')}
+    rotations = {axis:rotations.get(axis, None) for axis in ('x', 'y', 'z')}
+
     setticks_functions = dict(x='set_xticks', y='set_yticks', z='set_zticks')
     setlabels_functions = dict(x='set_xticklabels', y='set_yticklabels', z='set_zticklabels')
     getlabels_functions = dict(x='get_xticklabels', y='get_yticklabels', z='get_zticklabels')  
