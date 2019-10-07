@@ -84,17 +84,30 @@ def map_plot(ax, data, *args, geo, base, roads=None, water=None, colors={}, **kw
     ax.set_ylim(ylimit)
 
 
-#def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
+def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
+    assert isinstance(data, pd.DataFrame)
+    labels = [str(values) for values in data.columns.values]
+    values = data.values.transpose()
+    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))  
+    
+    for label, value, valuecolor in zip(labels, values, colors):
+        ax.hist(value, histtype="stepfilled", alpha=0.5, weights=weights, density=False, color=valuecolor, label=str(label))
+    ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')   
+  
+    
+#def violin_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
 #    assert isinstance(data, pd.DataFrame)
 #    labels = [str(values) for values in data.columns.values]
 #    values = data.values.transpose()
-#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))  
-#    
+#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))      
+#    weights = [int(round((w/sum(weights))*100, 0)) for w in weights]
+#
 #    for label, value, valuecolor in zip(labels, values, colors):
-#        ax.hist(value, bins='auto', histtype="stepfilled", alpha=0.5, weights=weights, density=True, color=valuecolor, label=str(label))
-#    ax.legend(ncol=len(labels), box_to_anchor=(0,1), loc='lower left')   
-    
-    
+#        adjustedvalues = np.array(_flatten([[v]*w for v, w in zip(value, weights)]))
+#        ax.violin(adjustedvalues,  showmeans=False, showextrema=True, showmedians=False, color=valuecolor, label=str(label))
+#    ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')      
+
+     
 #def scatter_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
 #    assert isinstance(data, pd.DataFrame)
 #    labels = [str(values) for values in data.columns.values]
@@ -108,16 +121,7 @@ def map_plot(ax, data, *args, geo, base, roads=None, water=None, colors={}, **kw
 #    ax.legend(ncol=len(labels), box_to_anchor=(0,1), loc='lower left') 
 
 
-#def violin_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
-#    assert isinstance(data, pd.DataFrame)
-#    labels = [str(values) for values in data.columns.values]
-#    values = data.values.transpose()
-#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))  
-#
-#    for label, value, valuecolor in zip(labels, values, colors):
-#        adjustedvalues = np.array(_flatten([[v]*w for v, w in zip(value, weights)]))
-#        ax.hist(adjustedvalues, showmeans=False, showextrema=True, showmedians=False, color=valuecolor, label=str(label))
-#    ax.legend(ncol=len(labels), box_to_anchor=(0,1), loc='lower left')     
+  
 
 
 
