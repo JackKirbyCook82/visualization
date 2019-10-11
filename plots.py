@@ -19,7 +19,7 @@ __license__ = ""
 
 
 _DEFAULTCOLOR = 'GnBu'
-_MAPCOLORS = {'roads':'DarkRed', 'water':'DarkBlue', 'map':'YlGn'}
+_MAPCOLORS = {'roads':'DarkRed', 'water':'DarkBlue', 'map':'YlGn', 'border':'black', 'division':'black'}
 
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
 _flatten = lambda nesteditems: [item for items in nesteditems for item in items]
@@ -63,23 +63,22 @@ def vbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
     ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center') 
 
 
-def map_plot(ax, data, *args, geo, base, roads=None, water=None, colors={}, **kwargs):
+def map_plot(ax, data, *args, geo, base, roads=None, water=None, color=_MAPCOLORS['map'], colorrange, **kwargs):
     assert isinstance(data, pd.Series)  
     assert isinstance(geo, gp.GeoDataFrame)
     assert isinstance(base, gp.GeoDataFrame)
     if roads is not None: assert isinstance(roads, gp.GeoSeries)
     if water is not None: assert isinstance(water, gp.GeoSeries)
     assert all([item.index.name == 'geography' for item in (data, geo)])  
-    colors = {key:colors.get(key, value) for key, value in _MAPCOLORS.items()}
     
     geomap, basemap = geo.merge(data, on='geography'), base   
     assert not geomap.isnull().values.any()
     ax.set_aspect('equal')
-    basemap.plot(ax=ax, color='white', edgecolor='black')
+    basemap.plot(ax=ax, color='white', edgecolor=_MAPCOLORS['border'])
     xlimit, ylimit = ax.get_xlim(), ax.get_ylim() 
-    geomap.plot(ax=ax, column=data.name, alpha=0.5, cmap=colors['map'], edgecolor=None)    
-    if roads is not None: roads.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=colors['roads'])
-    if water is not None: water.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=colors['water'])
+    geomap.plot(ax=ax, column=data.name, alpha=0.5, cmap=color, vmin=colorrange[0], vmax=colorrange[-1], edgecolor=_MAPCOLORS['division'])    
+    if roads is not None: roads.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['roads'])
+    if water is not None: water.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['water'])
     ax.set_xlim(xlimit)
     ax.set_ylim(ylimit)
 
