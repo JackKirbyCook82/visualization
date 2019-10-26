@@ -7,7 +7,6 @@ Created on Sat Jul 20 2019
 """
 
 import numpy as np
-from functools import reduce
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib import cm
@@ -27,19 +26,18 @@ def showplot(fig): display(fig)
 
 
 # FACTORY
-def createplot(size=(8,8), layout=(1,1), title=None):
-    assert all([isinstance(item, tuple) for item in (size, layout)])
-    assert all([len(item) == 2 for item in (size, layout)])
+def createplot(size, title=None):
+    assert isinstance(size, tuple)
+    assert len(size) == 2
     fig = plt.figure(figsize=size)
     fig.suptitle(title)
-    setattr(fig, 'layout', layout)
     return fig
 
 
-def createax(fig, *args, projection=None, **kwargs):
-    assert len(fig.axes) <= reduce(lambda x, y: x * y, list(fig.layout))
+def createax(fig, *args, x, y, pos, projection=None, **kwargs):
+    assert pos <= x * y
     projection = projection.lower() if projection else projection
-    ax = fig.add_subplot(*fig.layout, len(fig.axes)+1, projection=projection)
+    ax = fig.add_subplot(x, y, pos, projection=projection)
     return ax
   
 

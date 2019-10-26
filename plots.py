@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
-__all__ = ['map_plot', 'scatter_plot', 'hist_plot', 'violin_plot', 'hbar_plot', 'vbar_plot']
+__all__ = ['map_plot', 'hbar_plot', 'vbar_plot', 'hist_plot']
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
@@ -26,6 +26,37 @@ _flatten = lambda nesteditems: [item for items in nesteditems for item in items]
 
 
 # PLOTS
+def map_plot(ax, data, *args, geo, base, roads=None, water=None, color=_MAPCOLORS['map'], span, **kwargs):
+    assert isinstance(data, pd.Series)  
+    assert isinstance(geo, gp.GeoDataFrame)
+    assert isinstance(base, gp.GeoDataFrame)
+    if roads is not None: assert isinstance(roads, gp.GeoSeries)
+    if water is not None: assert isinstance(water, gp.GeoSeries)
+    assert all([item.index.name == 'geography' for item in (data, geo)])  
+    
+    geomap, basemap = geo.merge(data, on='geography'), base   
+    geomap = geomap.replace([np.inf, -np.inf], np.nan).dropna(how='any', axis=0)
+    ax.set_aspect('equal')
+    basemap.plot(ax=ax, color='white', edgecolor=_MAPCOLORS['border'])
+    xlimit, ylimit = ax.get_xlim(), ax.get_ylim() 
+    geomap.plot(ax=ax, column=data.name, alpha=0.5, cmap=color, vmin=span[0], vmax=span[-1], edgecolor=_MAPCOLORS['division'])    
+    if roads is not None: roads.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['roads'])
+    if water is not None: water.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['water'])
+    ax.set_xlim(xlimit)
+    ax.set_ylim(ylimit)
+
+
+def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
+    assert isinstance(data, pd.DataFrame)
+    labels = [str(values) for values in data.columns.values]
+    values = data.values.transpose()
+    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))  
+    
+    for label, value, valuecolor in zip(labels, values, colors):
+        ax.hist(value, histtype="stepfilled", alpha=0.5, weights=weights, density=False, color=valuecolor, label=str(label))
+    ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')   
+
+
 def hbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
     assert isinstance(data, pd.DataFrame)
     labels = [str(values) for values in data.index.values]
@@ -63,37 +94,6 @@ def vbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
     ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center') 
 
 
-def map_plot(ax, data, *args, geo, base, roads=None, water=None, color=_MAPCOLORS['map'], colorrange, **kwargs):
-    assert isinstance(data, pd.Series)  
-    assert isinstance(geo, gp.GeoDataFrame)
-    assert isinstance(base, gp.GeoDataFrame)
-    if roads is not None: assert isinstance(roads, gp.GeoSeries)
-    if water is not None: assert isinstance(water, gp.GeoSeries)
-    assert all([item.index.name == 'geography' for item in (data, geo)])  
-    
-    geomap, basemap = geo.merge(data, on='geography'), base   
-    assert not geomap.isnull().values.any()
-    ax.set_aspect('equal')
-    basemap.plot(ax=ax, color='white', edgecolor=_MAPCOLORS['border'])
-    xlimit, ylimit = ax.get_xlim(), ax.get_ylim() 
-    geomap.plot(ax=ax, column=data.name, alpha=0.5, cmap=color, vmin=colorrange[0], vmax=colorrange[-1], edgecolor=_MAPCOLORS['division'])    
-    if roads is not None: roads.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['roads'])
-    if water is not None: water.plot(ax=ax, alpha=1, linewidth=0.3, edgecolor=_MAPCOLORS['water'])
-    ax.set_xlim(xlimit)
-    ax.set_ylim(ylimit)
-
-
-def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
-    assert isinstance(data, pd.DataFrame)
-    labels = [str(values) for values in data.columns.values]
-    values = data.values.transpose()
-    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))  
-    
-    for label, value, valuecolor in zip(labels, values, colors):
-        ax.hist(value, histtype="stepfilled", alpha=0.5, weights=weights, density=False, color=valuecolor, label=str(label))
-    ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')   
-  
-    
 #def violin_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
 #    assert isinstance(data, pd.DataFrame)
 #    labels = [str(values) for values in data.columns.values]
