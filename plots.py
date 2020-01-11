@@ -26,15 +26,15 @@ _flatten = lambda nesteditems: [item for items in nesteditems for item in items]
 
 
 # PLOTS
-def map_plot(ax, data, *args, geo, base, roads=None, water=None, color=_MAPCOLORS['map'], span, **kwargs):
+def map_plot(ax, data, *args, geo, basegeo, roads=None, water=None, color=_MAPCOLORS['map'], span, **kwargs):
     assert isinstance(data, pd.Series)  
     assert isinstance(geo, gp.GeoDataFrame)
-    assert isinstance(base, gp.GeoDataFrame)
+    assert isinstance(basegeo, gp.GeoDataFrame)
     if roads is not None: assert isinstance(roads, gp.GeoSeries)
     if water is not None: assert isinstance(water, gp.GeoSeries)
     assert all([item.index.name == 'geography' for item in (data, geo)])  
     
-    geomap, basemap = geo.merge(data, on='geography'), base   
+    geomap, basemap = geo.merge(data, on='geography'), basegeo   
     geomap = geomap.replace([np.inf, -np.inf], np.nan).dropna(how='any', axis=0)
     ax.set_aspect('equal')
     basemap.plot(ax=ax, color='white', edgecolor=_MAPCOLORS['border'])
