@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 __version__ = "1.0.0"
 __author__ = "Jack Kirby Cook"
-__all__ = ['map_plot', 'hbar_plot', 'vbar_plot', 'hist_plot']
+__all__ = ['map_plot', 'hbar_plot', 'vbar_plot', 'hist_plot', 'surface_plot']
 __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
@@ -26,6 +26,22 @@ _flatten = lambda nesteditems: [item for items in nesteditems for item in items]
 
 
 # PLOTS
+def surface_plot(ax, dataframe, *args, x, y, z, color=_DEFAULTCOLOR, **kwargs):
+    assert all([i in dataframe.columns for i in (x, y, z)])
+    dataframe = dataframe.pivot(index=y, columns=x, values=z)
+    x, y, z = np.arange(len(dataframe.columns)), np.arange(len(dataframe.index)), dataframe.to_numpy()
+    x, y = np.meshgrid(dataframe.columns, dataframe.index)
+    ax.plot_surface(x, y, z, cmap=color)
+  
+    
+def contour_plot(ax, dataframe, *args, x, y, z, density=50, color=_DEFAULTCOLOR, **kwargs):
+    assert all([i in dataframe.columns for i in (x, y, z)])
+    dataframe = dataframe.pivot(index=y, columns=x, values=z)
+    x, y, z = np.arange(len(dataframe.columns)), np.arange(len(dataframe.index)), dataframe.to_numpy()
+    x, y = np.meshgrid(dataframe.columns, dataframe.index)
+    ax.contour3D(x, y, z, density, cmap=color)
+    
+
 def map_plot(ax, data, *args, geo, basegeo, roads=None, water=None, color=_MAPCOLORS['map'], span, **kwargs):
     assert isinstance(data, pd.Series)  
     assert isinstance(geo, gp.GeoDataFrame)
@@ -94,33 +110,6 @@ def vbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
     ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center') 
 
 
-#def violin_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
-#    assert isinstance(data, pd.DataFrame)
-#    labels = [str(values) for values in data.columns.values]
-#    values = data.values.transpose()
-#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))      
-#    weights = [int(round((w/sum(weights))*100, 0)) for w in weights]
-#
-#    for label, value, valuecolor in zip(labels, values, colors):
-#        adjustedvalues = np.array(_flatten([[v]*w for v, w in zip(value, weights)]))
-#        ax.violin(adjustedvalues,  showmeans=False, showextrema=True, showmedians=False, color=valuecolor, label=str(label))
-#    ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')      
-
-     
-#def scatter_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
-#    assert isinstance(data, pd.DataFrame)
-#    labels = [str(values) for values in data.columns.values]
-#    axes = np.array([[item for item in _aslist(value)] for value in data.index.values]).transpose()
-#    values = data.values.transpose()   
-#    colors = plt.get_cmap(color)(np.linspace(0.15, 0.85, len(labels)))     
-#    
-#    for label, value, valuecolor in zip(labels, values, colors):
-#        ax.scatter(*axes, s=value, alpha=0.5, color=valuecolor, label=str(label))     
-#    ax.grid(True)
-#    ax.legend(ncol=len(labels), box_to_anchor=(0,1), loc='lower left') 
-
-
-  
 
 
 

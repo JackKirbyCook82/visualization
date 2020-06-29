@@ -34,12 +34,18 @@ def createplot(size, title=None):
     return fig
 
 
-def createax(fig, *args, x, y, pos, projection=None, **kwargs):
+def createax(fig, *args, x, y, pos, projection=None, limits={}, **kwargs):
     assert pos <= x * y
+    assert isinstance(limits, dict)
+    axislimits = dict(x = lambda i, j: ax.set_xlim((i, j,)),
+                      y = lambda i, j: ax.set_ylim((i, j,)),
+                      z = lambda i, j: ax.set_zlim((i, j,)))
     projection = projection.lower() if projection else projection
     ax = fig.add_subplot(x, y, pos, projection=projection)
+    for axiskey, axislimit in axislimits.items(): 
+        if axiskey in limits.keys(): axislimit(*limits[axiskey])
     return ax
-  
+
 
 def addcolorbar(fig, colorrange, *args, orientation='horizontal', color, **kwargs):
     mincolor, maxcolor = colorrange
