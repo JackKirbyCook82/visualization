@@ -33,7 +33,6 @@ def createplot(size, title=None):
     fig.suptitle(title)
     return fig
 
-
 def createax(fig, *args, x, y, pos, projection=None, limits={}, **kwargs):
     assert pos <= x * y
     assert isinstance(limits, dict)
@@ -45,7 +44,6 @@ def createax(fig, *args, x, y, pos, projection=None, limits={}, **kwargs):
     for axiskey, axislimit in axislimits.items(): 
         if axiskey in limits.keys(): axislimit(*limits[axiskey])
     return ax
-
 
 def addcolorbar(fig, colorrange, *args, orientation='horizontal', color, **kwargs):
     mincolor, maxcolor = colorrange
@@ -59,8 +57,7 @@ def addcolorbar(fig, colorrange, *args, orientation='horizontal', color, **kwarg
         cbarax = fig.add_axes([0.1, 0.05, 0.8, 0.02]) 
     else: raise ValueError(orientation)
     fig.colorbar(ncmap, cax=cbarax, orientation=orientation)   
- 
-    
+  
 def setnames(ax, *args, title=None, names={}, **kwargs):
     axisnames = dict(x = lambda name: ax.set_xlabel(name), 
                      y = lambda name: ax.set_ylabel(name), 
@@ -69,7 +66,6 @@ def setnames(ax, *args, title=None, names={}, **kwargs):
     for axiskey, axisname in names.items(): 
         if axiskey in axisnames.keys(): axisnames[axiskey](axisname)  
     
-   
 def setlabels(ax, *args, labels={}, rotations={}, **kwargs):  
     labels = {axis:labels.get(axis, None) for axis in ('x', 'y', 'z')}
     rotations = {axis:rotations.get(axis, None) for axis in ('x', 'y', 'z')}

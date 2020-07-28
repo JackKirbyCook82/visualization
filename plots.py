@@ -18,7 +18,8 @@ __copyright__ = "Copyright 2018, Jack Kirby Cook"
 __license__ = ""
 
 
-_DEFAULTCOLOR = 'GnBu'
+_DEFAULTCOLOR = 'b'
+_DEFAULTCOLORSTYLE = 'GnBu'
 _MAPCOLORS = {'roads':'DarkRed', 'water':'DarkBlue', 'map':'YlGn', 'border':'black', 'division':'black'}
 
 _aslist = lambda items: [items] if not isinstance(items, (list, tuple)) else list(items)
@@ -26,21 +27,25 @@ _flatten = lambda nesteditems: [item for items in nesteditems for item in items]
 
 
 # PLOTS
-def surface_plot(ax, dataframe, *args, x, y, z, color=_DEFAULTCOLOR, **kwargs):
+def surface_plot(ax, dataframe, *args, x, y, z, color=_DEFAULTCOLORSTYLE, **kwargs):
     assert all([i in dataframe.columns for i in (x, y, z)])
     dataframe = dataframe.pivot(index=y, columns=x, values=z)
     x, y, z = np.arange(len(dataframe.columns)), np.arange(len(dataframe.index)), dataframe.to_numpy()
     x, y = np.meshgrid(dataframe.columns, dataframe.index)
     ax.plot_surface(x, y, z, cmap=color)
-  
-    
-def contour_plot(ax, dataframe, *args, x, y, z, density=50, color=_DEFAULTCOLOR, **kwargs):
+      
+def contour_plot(ax, dataframe, *args, x, y, z, density=50, color=_DEFAULTCOLORSTYLE, **kwargs):
     assert all([i in dataframe.columns for i in (x, y, z)])
     dataframe = dataframe.pivot(index=y, columns=x, values=z)
     x, y, z = np.arange(len(dataframe.columns)), np.arange(len(dataframe.index)), dataframe.to_numpy()
     x, y = np.meshgrid(dataframe.columns, dataframe.index)
     ax.contour3D(x, y, z, density, cmap=color)
-    
+  
+def line_plot(ax, dataframe, *args, colors=None, **kwargs):
+    if not colors: colors = [_DEFAULTCOLOR] * len(dataframe.columns)
+    else: assert len(dataframe.columns) == len(colors)
+    x = dataframe.index.to_numpy()
+    for y, c in zip(dataframe.to_numpy().transpose(), colors): ax.plot(x, y, color=c)
 
 def map_plot(ax, data, *args, geo, basegeo, roads=None, water=None, color=_MAPCOLORS['map'], span, **kwargs):
     assert isinstance(data, pd.Series)  
@@ -61,8 +66,7 @@ def map_plot(ax, data, *args, geo, basegeo, roads=None, water=None, color=_MAPCO
     ax.set_xlim(xlimit)
     ax.set_ylim(ylimit)
 
-
-def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
+def hist_plot(ax, data, *args, color=_DEFAULTCOLORSTYLE, weights=None, **kwargs):
     assert isinstance(data, pd.DataFrame)
     labels = [str(values) for values in data.columns.values]
     values = data.values.transpose()
@@ -72,8 +76,7 @@ def hist_plot(ax, data, *args, color=_DEFAULTCOLOR, weights=None, **kwargs):
         ax.hist(value, histtype="stepfilled", alpha=0.5, weights=weights, density=False, color=valuecolor, label=str(label))
     ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')   
 
-
-def hbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+def hbar_plot(ax, data, *args, color=_DEFAULTCOLORSTYLE, **kwargs):
     assert isinstance(data, pd.DataFrame)
     labels = [str(values) for values in data.index.values]
     axes = [str(values) for values in data.columns.values]
@@ -94,8 +97,7 @@ def hbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
         for y, (x, c) in enumerate(zip(centers, widths)): ax.text(x, y, str(int(c)), ha='center', va='center')        
     ax.legend(ncol=len(labels), bbox_to_anchor=(0.5,1), loc='lower center')    
 
-
-def vbar_plot(ax, data, *args, color=_DEFAULTCOLOR, **kwargs):
+def vbar_plot(ax, data, *args, color=_DEFAULTCOLORSTYLE, **kwargs):
     assert isinstance(data, pd.DataFrame)
     labels = [str(values) for values in data.index.values]
     axes = [str(values) for values in data.columns.values]
